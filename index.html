@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        /* Hide the PyScript code element */
+        py-script {
+            display: none;
+        }
+        /* Loading message styles */
+        #loading-message {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-message">Loading PyScript...</div>
+    <div class="container" style="display: none;">
+        <h1>Day Calculator</h1>
+        <p id="today-info"></p>
+        <label for="date-picker">Select a date:</label>
+        <input type="date" id="date-picker">
+        <input type="text" id="result" placeholder="Date 90 days before will appear here" readonly>
+    </div>
+
+    <!-- PyScript Version -->
+    <py-script>
+        from datetime import datetime, timedelta
+        from js import document
+
+        # Display today's date and 90 days from today
+        today = datetime.now()
+        ninety_days_from_today = today + timedelta(days=90)
+        today_info = document.getElementById("today-info")
+        today_info.innerHTML = f"Today is {today.strftime('%Y-%m-%d')}, 90 days from today is {ninety_days_from_today.strftime('%Y-%m-%d')}"
+
+        def calculate_date(event):
+            date_picker = document.getElementById("date-picker")
+            result_field = document.getElementById("result")
+
+            selected_date_str = date_picker.value
+            try:
+                selected_date = datetime.strptime(selected_date_str, "%Y-%m-%d")
+                ninety_days_before = selected_date - timedelta(days=90)
+                result_field.value = ninety_days_before.strftime("%Y-%m-%d")
+            except ValueError:
+                result_field.value = "Invalid date"
+
+        date_picker = document.getElementById("date-picker")
+        from pyodide.ffi.wrappers import create_proxy
+        date_picker.addEventListener("change", create_proxy(calculate_date))
+
+        # Show the page content and hide the loading message
+        container = document.querySelector(".container")
+        loading_message = document.getElementById("loading-message")
+        container.style.display = "block"
+        loading_message.style.display = "none"
+    </py-script>
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+</body>
+</html>
